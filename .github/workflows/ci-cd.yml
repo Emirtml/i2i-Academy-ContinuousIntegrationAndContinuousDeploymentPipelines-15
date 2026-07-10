@@ -1,0 +1,37 @@
+name: CI-CD Pipeline
+
+# Trigger the workflow automatically on every code push
+on: [push]
+
+jobs:
+  pipeline-steps:
+    # Running on a standard Ubuntu environment
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step A: Set up Python and install necessary dependencies
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Python environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install pytest and selenium
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest selenium
+
+    # Step B: Execute Unit Test using pytest
+    - name: Run Unit Test
+      run: pytest test_project.py -k "test_telecom_tax_calculation"
+
+    # Step C: Execute Selenium UI Test in headless mode
+    - name: Run Selenium UI Test
+      run: pytest test_project.py -k "test_website_ui_loads"
+
+    # Step D (Deployment): Print confirmation if both tests pass successfully
+    - name: Deploy to Production
+      if: success()
+      run: echo "All tests passed! Application successfully deployed to production."
